@@ -97,7 +97,7 @@
         }
 
         .date-num {
-            font-size: 0.5rem;
+            font-size: 0.55rem; /* 放大 10% (原 0.5rem -> 0.55rem) */
             color: #64748b; /* 稍微深一點的灰 */
             margin-bottom: 1px;
             font-weight: bold;
@@ -105,12 +105,12 @@
         }
         
         @media (min-width: 768px) {
-            .date-num { font-size: 0.6rem; }
+            .date-num { font-size: 0.7rem; /* 放大 (原 0.6rem -> 0.7rem) */ }
         }
 
         .shift-tag {
-            font-size: 0.4rem;
-            padding: 1px 2px;
+            font-size: 0.45rem; /* 放大 10% (原 0.4rem -> 0.45rem) */
+            padding: 1px 3px;
             border-radius: 4px;
             margin-top: 1px;
             display: block;
@@ -119,20 +119,20 @@
             white-space: nowrap;
             font-weight: bold;
             border-left-width: 2px;
-            line-height: 1.1;
+            line-height: 1.2;
         }
         
         @media (min-width: 768px) {
             .shift-tag {
-                font-size: 0.45rem;
+                font-size: 0.55rem; /* 放大 (原 0.45rem -> 0.55rem) */
                 padding: 2px 4px;
             }
         }
 
         .remark-tag {
-            font-size: 0.35rem;
+            font-size: 0.4rem; /* 放大 10% (原 0.35rem -> 0.4rem) */
             padding: 1px 2px;
-            margin-top: auto;
+            margin-bottom: 2px; /* 增加一點下邊距與班表區隔 */
             background-color: #fffbeb;
             border: 1px dashed #fcd34d;
             color: #92400e;
@@ -140,7 +140,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            line-height: 1;
+            line-height: 1.1;
         }
 
         /* 隱藏捲軸但保留功能 */
@@ -506,6 +506,7 @@
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const firstDay = new Date(year, month, 1).getDay();
 
+            // 尋找備註列
             let remarkRow = null;
             if (currentSchedule && currentSchedule.length > 0) {
                 remarkRow = currentSchedule.find(row => {
@@ -514,12 +515,14 @@
                 });
             }
 
+            // 填充空白
             for (let i = 0; i < firstDay; i++) {
                 const div = document.createElement('div');
                 div.className = "day-cell bg-slate-50/50";
                 container.appendChild(div);
             }
 
+            // 填充日期
             for (let d = 1; d <= daysInMonth; d++) {
                 const div = document.createElement('div');
                 div.className = `day-cell cursor-pointer ${selectedDates.has(d) ? 'selected' : ''}`;
@@ -528,6 +531,21 @@
                 num.className = "date-num";
                 num.textContent = d;
                 div.appendChild(num);
+
+                // 備註現在顯示在日期下方 (最上方)
+                if (remarkRow) {
+                    // d 對應的 index
+                    // 資料列結構: [Name, 1號, 2號...]
+                    // d=1 => index 1
+                    const dataColIndex = d;
+                    const remarkText = remarkRow[dataColIndex];
+                    if (remarkText && remarkText.trim() !== "") {
+                        const remarkDiv = document.createElement('div');
+                        remarkDiv.className = "remark-tag";
+                        remarkDiv.textContent = remarkText;
+                        div.appendChild(remarkDiv);
+                    }
+                }
 
                 const shiftsContainer = document.createElement('div');
                 
@@ -546,21 +564,15 @@
                             const colorStyle = getShiftColor(shift);
                             span.className = `shift-tag ${colorStyle.bg} ${colorStyle.text} ${colorStyle.border}`;
                             
-                            // 更新顯示格式: Name:Shift
-                            span.textContent = `${name}:${shift}`;
+                            // 更新顯示格式: APPLE -> A, ELLY -> E
+                            let displayName = name;
+                            if (name === 'APPLE') displayName = 'A';
+                            else if (name === 'ELLY') displayName = 'E';
+                            
+                            span.textContent = `${displayName} ${shift}`;
                             shiftsContainer.appendChild(span);
                         }
                     });
-
-                    if (remarkRow) {
-                        const remarkText = remarkRow[dataColIndex];
-                        if (remarkText && remarkText.trim() !== "") {
-                            const remarkDiv = document.createElement('div');
-                            remarkDiv.className = "remark-tag";
-                            remarkDiv.textContent = remarkText;
-                            div.appendChild(remarkDiv);
-                        }
-                    }
                 }
                 div.appendChild(shiftsContainer);
 
@@ -577,6 +589,7 @@
                     } else {
                         let currentRemarkText = "";
                         if (remarkRow) {
+                            // d=1 => index 1
                             currentRemarkText = remarkRow[d] || "";
                         }
                         openRemarkModal(d, currentRemarkText);
