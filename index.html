@@ -75,7 +75,8 @@
         }
 
         .day-cell {
-            min-height: 80px;
+            height: 80px; /* 固定高度，不再隨內容長大 */
+            overflow: hidden; /* 超出內容隱藏 */
             background-color: white;
             transition: all 0.2s;
             display: flex;
@@ -85,7 +86,7 @@
         }
 
         @media (min-width: 768px) {
-            .day-cell { min-height: 130px; padding: 8px; }
+            .day-cell { height: 130px; padding: 4px; }
         }
 
         .day-cell.selected {
@@ -94,38 +95,52 @@
         }
 
         .date-num {
-            font-size: 1rem;
+            font-size: 0.5rem; /* 縮小 50% (原 1rem) */
             color: #94a3b8;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
             font-weight: bold;
             padding-left: 2px;
         }
+        
+        @media (min-width: 768px) {
+            .date-num {
+                font-size: 0.6rem; /* 縮小 50% (原 1.2rem) */
+            }
+        }
 
         .shift-tag {
-            font-size: 0.8rem;
-            padding: 2px 4px;
-            border-radius: 6px;
-            margin-top: 2px;
+            font-size: 0.4rem; /* 縮小 50% (原 0.8rem) */
+            padding: 1px 2px; /* Padding 也對應縮小 */
+            border-radius: 4px;
+            margin-top: 1px;
             display: block;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             font-weight: bold;
-            border-left-width: 3px;
-            line-height: 1.2;
+            border-left-width: 2px;
+            line-height: 1.1;
+        }
+        
+        @media (min-width: 768px) {
+            .shift-tag {
+                font-size: 0.45rem; /* 縮小 50% (原 0.9rem) */
+                padding: 2px 4px;
+            }
         }
 
         .remark-tag {
-            font-size: 0.75rem;
-            padding: 2px 4px;
+            font-size: 0.35rem; /* 縮小 50% (原 0.75rem) */
+            padding: 1px 2px;
             margin-top: auto;
             background-color: #fffbeb;
             border: 1px dashed #fcd34d;
             color: #92400e;
-            border-radius: 4px;
-            white-space: pre-wrap;
-            word-break: break-all;
-            line-height: 1.1;
+            border-radius: 3px;
+            white-space: nowrap; /* 空間變小，改為不換行 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1;
         }
 
         /* 隱藏捲軸但保留功能 */
