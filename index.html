@@ -355,31 +355,48 @@
     <script>
         const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbzCBZ2i6P68KZ_LjgoVhQjcD2dMLcw1nd5pjMcxX_me-Sl1CWGnrrVYLe-AmMRbnvYY/exec';
         
-        const shiftColorStyles = [
+        // --- 顏色定義與邏輯 (已更新：移除紅色系，並改為順序分配) ---
+        const shiftColorPalette = [
             { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-300' },
             { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-300' },
-            { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-300' },
-            { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-300' },
+            { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-300' },
             { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-300' },
-            { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', border: 'border-fuchsia-300' },
-            { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-300' },
+            { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-300' },
             { bg: 'bg-lime-50', text: 'text-lime-700', border: 'border-lime-300' },
-            { bg: 'bg-pink-50', text: 'text-pink-700', border: 'border-pink-300' },
+            { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-300' },
+            { bg: 'bg-cyan-50', text: 'text-cyan-700', border: 'border-cyan-300' },
+            { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', border: 'border-fuchsia-300' },
             { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-300' },
+            { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-300' },
+            { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-300' },
+            { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-300' },
+            { bg: 'bg-slate-50', text: 'text-slate-700', border: 'border-slate-300' },
         ];
 
+        let assignedColors = {}; // 記錄每個班別名稱對應的顏色
+        let colorIndex = 0;      // 目前分配到第幾個顏色
+
         function getShiftColor(name) {
-            if (!name) return shiftColorStyles[0];
+            if (!name) return shiftColorPalette[0];
+            
+            // 特別處理 "休假" (保留紅色)
             if (name.includes("休假")) {
                 return { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-300' };
             }
-            let hash = 0;
-            for (let i = 0; i < name.length; i++) {
-                hash = name.charCodeAt(i) + ((hash << 5) - hash);
+
+            // 如果已經分配過顏色，直接回傳舊的
+            if (assignedColors[name]) {
+                return assignedColors[name];
             }
-            const index = Math.abs(hash) % shiftColorStyles.length;
-            return shiftColorStyles[index];
+
+            // 分配新顏色 (依序從色盤取用)
+            const style = shiftColorPalette[colorIndex % shiftColorPalette.length];
+            assignedColors[name] = style;
+            colorIndex++;
+            
+            return style;
         }
+        // -------------------
 
         let scriptUrl = localStorage.getItem('gas_script_url') || DEFAULT_URL;
         let currentMode = 'view';
