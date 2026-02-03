@@ -220,10 +220,9 @@
                         <div id="connectionStatus" class="flex items-center justify-center w-10 h-10 bg-slate-100 rounded-lg text-slate-400">
                             <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
                         </div>
-                        <button onclick="showDebugModal()" class="w-10 h-10 flex items-center justify-center text-slate-400 bg-white border border-slate-200 rounded-lg">
+                        <button onclick="clearCacheAndReload()" class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-sky-500 bg-white border border-slate-200 rounded-lg" title="強制重新整理 (清除快取)">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
                         </button>
                     </div>
@@ -354,6 +353,41 @@
     <script>
         const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbzCBZ2i6P68KZ_LjgoVhQjcD2dMLcw1nd5pjMcxX_me-Sl1CWGnrrVYLe-AmMRbnvYY/exec';
         
+        // --- 快取管理 ---
+        const Cache = {
+            prefix: 'shift_sys_',
+            get: function(key) {
+                try {
+                    const data = localStorage.getItem(this.prefix + key);
+                    if (!data) return null;
+                    const parsed = JSON.parse(data);
+                    // 30分鐘過期 (雖然我們主要依賴主動清除，但加個過期時間保險)
+                    if (Date.now() - parsed.timestamp > 30 * 60 * 1000) {
+                        this.remove(key);
+                        return null;
+                    }
+                    return parsed.value;
+                } catch (e) { return null; }
+            },
+            set: function(key, value) {
+                try {
+                    const item = { value: value, timestamp: Date.now() };
+                    localStorage.setItem(this.prefix + key, JSON.stringify(item));
+                } catch (e) {}
+            },
+            remove: function(key) {
+                localStorage.removeItem(this.prefix + key);
+            },
+            clearAll: function() {
+                // 清除所有相關快取
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith(this.prefix)) {
+                        localStorage.removeItem(key);
+                    }
+                });
+            }
+        };
+
         // --- 顏色定義與邏輯 ---
         const shiftColorPalette = [
             { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-300' },
@@ -441,7 +475,16 @@
 
         async function initApp() {
             try {
-                profileData = await callBackend('getProfile');
+                // 嘗試從快取讀取 Profile
+                const cachedProfile = Cache.get('profile');
+                if (cachedProfile) {
+                    profileData = cachedProfile;
+                    console.log('Profile loaded from cache');
+                } else {
+                    profileData = await callBackend('getProfile');
+                    Cache.set('profile', profileData);
+                }
+                
                 renderPersonSelect();
                 renderViewFilterSelect();
                 loadMonthData();
@@ -481,6 +524,16 @@
 
         async function loadMonthData() {
             const ym = document.getElementById('yearMonthSelect').value;
+            
+            // 嘗試從快取讀取
+            const cachedData = Cache.get('month_' + ym);
+            if (cachedData) {
+                currentSchedule = cachedData;
+                console.log(`Month ${ym} loaded from cache`);
+                renderCalendar();
+                return;
+            }
+
             try {
                 const result = await callBackend('getMonthData', { sheetName: ym });
                 if (!result.exists) {
@@ -488,6 +541,8 @@
                     currentSchedule = [];
                 } else {
                     currentSchedule = result.values;
+                    // 寫入快取
+                    Cache.set('month_' + ym, currentSchedule);
                 }
                 renderCalendar();
             } catch (err) {
@@ -618,6 +673,8 @@
                 const result = await callBackend('saveShifts', { sheetName: ym, updates: updates });
                 if (result.updated > 0) {
                     showToast("備註已更新");
+                    // 儲存成功，移除快取以強制刷新
+                    Cache.remove('month_' + ym);
                     loadMonthData();
                 } else if (result.errors && result.errors.length > 0) {
                     showToast(`更新失敗：${result.errors[0]}`);
@@ -756,9 +813,18 @@
                 } else {
                     showToast("未更新，請檢查人員名稱");
                 }
+                // 儲存成功後清除快取，確保下次讀取最新
+                Cache.remove('month_' + ym);
                 clearSelection();
                 loadMonthData(); 
             } catch (err) {}
+        }
+
+        function clearCacheAndReload() {
+            Cache.clearAll();
+            showToast("快取已清除，正在重新載入...");
+            // 重新載入 Profile 和 Month Data
+            initApp();
         }
 
         function showDebugModal() {
@@ -767,6 +833,11 @@
             const ym = document.getElementById('yearMonthSelect').value;
             let report = `=== 資料檢查報告 ===\n`;
             report += `月份: ${ym}\n`;
+            
+            // 檢查是否從快取讀取
+            const cached = Cache.get('month_' + ym);
+            report += `資料來源: ${cached ? '快取 (Local Cache)' : '伺服器 (Server)'}\n`;
+
             if (!currentSchedule || currentSchedule.length === 0) {
                 report += `[警告] 前端未收到資料。\n`;
             } else {
