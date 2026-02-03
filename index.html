@@ -97,7 +97,7 @@
         }
 
         .date-num {
-            font-size: 0.65rem; /* 縮小 10% (原 0.7rem) */
+            font-size: 0.7rem; /* 放大 10% (原 0.62rem -> 0.7rem) */
             color: #64748b; /* 稍微深一點的灰 */
             margin-bottom: 1px;
             font-weight: bold;
@@ -105,11 +105,11 @@
         }
         
         @media (min-width: 768px) {
-            .date-num { font-size: 0.8rem; /* 縮小 10% (原 0.9rem) */ }
+            .date-num { font-size: 0.85rem; /* 放大 10% (原 0.76rem -> 0.85rem) */ }
         }
 
         .shift-tag {
-            font-size: 0.5rem; /* 縮小 10% (原 0.55rem) */
+            font-size: 0.55rem; /* 放大 10% (原 0.48rem -> 0.55rem) */
             padding: 1px 3px;
             border-radius: 4px;
             margin-top: 1px;
@@ -124,13 +124,13 @@
         
         @media (min-width: 768px) {
             .shift-tag {
-                font-size: 0.65rem; /* 縮小 10% (原 0.7rem) */
+                font-size: 0.7rem; /* 放大 10% (原 0.62rem -> 0.7rem) */
                 padding: 2px 4px;
             }
         }
 
         .remark-tag {
-            font-size: 0.45rem; /* 縮小 10% (原 0.5rem) */
+            font-size: 0.5rem; /* 放大 10% (原 0.43rem -> 0.5rem) */
             padding: 1px 2px;
             margin-bottom: 2px; /* 增加一點下邊距與班表區隔 */
             background-color: #fffbeb;
@@ -569,7 +569,8 @@
                             if (name === 'APPLE') displayName = '🍎';
                             else if (name === 'ELLY') displayName = '🐱';
                             
-                            span.textContent = `${displayName} ${shift}`;
+                            // 改成無空格
+                            span.textContent = `${displayName}${shift}`;
                             shiftsContainer.appendChild(span);
                         }
                     });
