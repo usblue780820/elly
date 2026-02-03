@@ -43,12 +43,12 @@
         }
 
         .day-cell {
-            min-height: 100px; /* 手機上高度 */
+            min-height: 85px; /* 手機上高度縮小 */
             background-color: white;
             transition: all 0.2s;
             display: flex;
             flex-direction: column;
-            padding: 4px;
+            padding: 2px; /* 手機上內距縮小 */
             position: relative;
         }
 
@@ -65,43 +65,61 @@
 
         .day-cell.selected {
             background-color: #e0f2fe !important;
-            box-shadow: inset 0 0 0 3px #38bdf8;
+            box-shadow: inset 0 0 0 2px #38bdf8;
         }
 
         .date-num {
-            font-size: 1.2rem;
+            font-size: 1rem; /* 手機上字體縮小 */
             color: #94a3b8;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             font-weight: bold;
+            padding-left: 2px;
+        }
+        
+        @media (min-width: 768px) {
+            .date-num {
+                font-size: 1.2rem;
+                margin-bottom: 4px;
+            }
         }
 
-        /* 班別標籤基本樣式，顏色由 JS 動態控制 */
+        /* 班別標籤基本樣式 */
         .shift-tag {
-            font-size: 0.9rem;
-            padding: 4px 6px;
-            border-radius: 8px;
-            margin-top: 3px;
+            font-size: 0.8rem; /* 手機上班表字體縮小 */
+            padding: 2px 4px;
+            border-radius: 6px;
+            margin-top: 2px;
             display: block;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             font-weight: bold;
-            border-left-width: 4px; /* 左側色條 */
+            border-left-width: 3px;
+            line-height: 1.2;
+        }
+
+        @media (min-width: 768px) {
+            .shift-tag {
+                font-size: 0.9rem;
+                padding: 4px 6px;
+                margin-top: 3px;
+                border-left-width: 4px;
+            }
         }
 
         .remark-tag {
-            font-size: 0.9rem;
-            padding: 6px;
+            font-size: 0.75rem;
+            padding: 4px;
             margin-top: auto;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
             background-color: #fffbeb; /* Amber 50 */
-            border: 2px dashed #fcd34d; /* Amber 300 */
+            border: 1px dashed #fcd34d; /* Amber 300 */
             color: #92400e;
-            border-radius: 8px;
+            border-radius: 6px;
             white-space: pre-wrap;
             word-break: break-all;
-            line-height: 1.3;
+            line-height: 1.2;
         }
 
         /* 背景裝飾圖片樣式 */
@@ -118,7 +136,7 @@
 
         .decor-img {
             position: absolute;
-            opacity: 0.3; /* 透明度 95% (保留 5% 不透明度) */
+            opacity: 0.05; /* 透明度 95% (保留 5% 不透明度) */
             width: 260px; /* 放大 30% (200 * 1.3) */
             max-width: 52vw; /* 手機版不超過螢幕寬度 52% */
         }
@@ -184,7 +202,7 @@
         }
     </style>
 </head>
-<body class="pb-20 lg:pb-10 relative">
+<body class="pb-24 lg:pb-10 relative">
 
     <!-- 背景裝飾層 (固定在視窗，位於所有內容之下) -->
     <div class="bg-decor-container">
@@ -193,81 +211,84 @@
         <img src="kiki.jpg" class="decor-img decor-btm-right" alt="" onerror="this.style.display='none'">
     </div>
 
-    <div id="app" class="max-w-6xl mx-auto p-3 lg:p-6 relative z-10">
+    <div id="app" class="max-w-6xl mx-auto p-2 lg:p-6 relative z-10">
         
-        <!-- 頂部卡片 -->
-        <div class="bg-white rounded-3xl shadow-soft p-4 mb-6 border border-sky-100">
-            <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
+        <!-- 頂部卡片 (手機版優化：縮小 Padding，調整佈局) -->
+        <div class="bg-white rounded-2xl lg:rounded-3xl shadow-soft p-3 lg:p-4 mb-4 border border-sky-100">
+            <div class="flex flex-col gap-3">
                 
                 <!-- 標題與切換 -->
-                <div class="flex items-center justify-between w-full lg:w-auto gap-4">
-                    <h1 class="text-2xl lg:text-3xl text-sky-500 font-bold tracking-wide truncate">2026 APPLE & ELLY 班表</h1>
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <h1 class="text-xl lg:text-3xl text-sky-500 font-bold tracking-wide truncate w-full text-center sm:text-left">2026 APPLE & ELLY 班表</h1>
                     
-                    <div class="flex bg-sky-50 p-1.5 rounded-2xl shrink-0">
-                        <button id="viewModeBtn" onclick="setMode('view')" class="px-5 py-2 rounded-xl text-lg transition-all duration-300 bg-white shadow-sm text-sky-600 font-bold">瀏覽</button>
-                        <button id="editModeBtn" onclick="setMode('edit')" class="px-5 py-2 rounded-xl text-lg transition-all duration-300 text-slate-400 hover:text-slate-600">排班</button>
+                    <div class="flex bg-sky-50 p-1 rounded-xl shrink-0 w-full sm:w-auto">
+                        <button id="viewModeBtn" onclick="setMode('view')" class="flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-base lg:text-lg transition-all duration-300 bg-white shadow-sm text-sky-600 font-bold">瀏覽</button>
+                        <button id="editModeBtn" onclick="setMode('edit')" class="flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-base lg:text-lg transition-all duration-300 text-slate-400 hover:text-slate-600">排班</button>
                     </div>
                 </div>
 
-                <!-- 控制項 -->
-                <div class="flex items-center gap-2 w-full lg:w-auto justify-end overflow-x-auto pb-1 lg:pb-0 scrollbar-hide">
+                <!-- 控制項 (手機版：自動換行，按鈕變大) -->
+                <div class="flex flex-wrap items-center gap-2 w-full justify-between sm:justify-end">
                     
                     <!-- 瀏覽模式篩選器 (僅在瀏覽模式顯示) -->
-                    <div id="viewFilterContainer" class="flex items-center gap-2 mr-2 transition-all duration-300">
-                        <span class="text-slate-400 text-sm font-bold whitespace-nowrap hidden sm:inline">篩選:</span>
-                        <select id="viewFilterSelect" onchange="applyViewFilter()" class="bg-sky-50 border-2 border-sky-100 text-sky-600 rounded-xl px-3 py-2 text-lg focus:outline-none focus:border-sky-300 transition-colors cursor-pointer min-w-[120px]">
+                    <div id="viewFilterContainer" class="flex-1 min-w-[120px] sm:flex-none transition-all duration-300">
+                        <select id="viewFilterSelect" onchange="applyViewFilter()" class="w-full bg-sky-50 border-2 border-sky-100 text-sky-600 rounded-xl px-2 py-2 text-base lg:text-lg focus:outline-none focus:border-sky-300 transition-colors cursor-pointer text-center sm:text-left">
                             <option value="">顯示全部</option>
                         </select>
                     </div>
 
-                    <select id="yearMonthSelect" onchange="loadMonthData()" class="bg-white border-2 border-sky-100 text-slate-600 rounded-xl px-3 py-2 text-lg focus:outline-none focus:border-sky-300 transition-colors cursor-pointer min-w-[140px]">
-                        <option value="202601">2026 01月</option>
-                        <option value="202602">2026 02月</option>
-                        <option value="202603">2026 03月</option>
-                        <option value="202604">2026 04月</option>
-                        <option value="202605">2026 05月</option>
-                        <option value="202606">2026 06月</option>
-                        <option value="202607">2026 07月</option>
-                        <option value="202608">2026 08月</option>
-                        <option value="202609">2026 09月</option>
-                        <option value="202610">2026 10月</option>
-                        <option value="202611">2026 11月</option>
-                        <option value="202612">2026 12月</option>
-                    </select>
-                    
-                    <div id="connectionStatus" class="flex items-center justify-center w-10 h-10 bg-slate-100 rounded-xl text-slate-400 shrink-0" title="連線狀態">
-                        <span class="w-3 h-3 rounded-full bg-slate-300"></span>
+                    <div class="flex-1 min-w-[130px] sm:flex-none">
+                        <select id="yearMonthSelect" onchange="loadMonthData()" class="w-full bg-white border-2 border-sky-100 text-slate-600 rounded-xl px-2 py-2 text-base lg:text-lg focus:outline-none focus:border-sky-300 transition-colors cursor-pointer text-center sm:text-left">
+                            <option value="202601">2026 01月</option>
+                            <option value="202602">2026 02月</option>
+                            <option value="202603">2026 03月</option>
+                            <option value="202604">2026 04月</option>
+                            <option value="202605">2026 05月</option>
+                            <option value="202606">2026 06月</option>
+                            <option value="202607">2026 07月</option>
+                            <option value="202608">2026 08月</option>
+                            <option value="202609">2026 09月</option>
+                            <option value="202610">2026 10月</option>
+                            <option value="202611">2026 11月</option>
+                            <option value="202612">2026 12月</option>
+                        </select>
                     </div>
+                    
+                    <div class="flex gap-2">
+                        <div id="connectionStatus" class="flex items-center justify-center w-10 h-10 bg-slate-100 rounded-xl text-slate-400 shrink-0" title="連線狀態">
+                            <span class="w-3 h-3 rounded-full bg-slate-300"></span>
+                        </div>
 
-                    <button onclick="showDebugModal()" class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-sky-500 hover:bg-sky-50 bg-white border border-slate-100 rounded-xl transition-colors shrink-0" title="檢查資料">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </button>
+                        <button onclick="showDebugModal()" class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-sky-500 hover:bg-sky-50 bg-white border border-slate-100 rounded-xl transition-colors shrink-0" title="檢查資料">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
             
             <!-- 左側排班工具 (卡片式) -->
             <div id="editTools" class="lg:col-span-1 hidden order-first lg:order-first">
-                <div class="bg-white p-5 rounded-3xl shadow-soft sticky top-4 border border-sky-100">
-                    <div class="flex items-center gap-2 mb-4 pb-4 border-b border-sky-50">
+                <div class="bg-white p-4 lg:p-5 rounded-2xl lg:rounded-3xl shadow-soft sticky top-2 border border-sky-100">
+                    <div class="flex items-center gap-2 mb-3 pb-3 border-b border-sky-50">
                         <div class="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-500">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                             </svg>
                         </div>
-                        <h2 class="text-xl font-bold text-slate-700">快速排班</h2>
+                        <h2 class="text-lg lg:text-xl font-bold text-slate-700">快速排班</h2>
                     </div>
                     
-                    <div class="space-y-6">
+                    <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-bold text-sky-400 mb-2 pl-1">1. 選擇人員</label>
+                            <label class="block text-sm font-bold text-sky-400 mb-1 pl-1">1. 選擇人員</label>
                             <div class="relative">
-                                <select id="personSelect" onchange="updateShiftList()" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 appearance-none focus:ring-2 focus:ring-sky-200 focus:border-sky-400 outline-none transition-all">
+                                <select id="personSelect" onchange="updateShiftList()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 appearance-none focus:ring-2 focus:ring-sky-200 focus:border-sky-400 outline-none transition-all text-base">
                                     <option value="">請選擇人員...</option>
                                 </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
@@ -279,37 +300,37 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-bold text-sky-400 mb-2 pl-1">2. 選擇班別</label>
-                            <div id="shiftList" class="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1">
-                                <p class="text-slate-300 text-lg text-center col-span-2 py-4">請先選擇人員</p>
+                            <label class="block text-sm font-bold text-sky-400 mb-1 pl-1">2. 選擇班別</label>
+                            <div id="shiftList" class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-2 gap-2 max-h-48 lg:max-h-64 overflow-y-auto pr-1">
+                                <p class="text-slate-300 text-base text-center col-span-3 lg:col-span-2 py-4">請先選擇人員</p>
                             </div>
                         </div>
 
-                        <div class="pt-4 border-t border-sky-50">
-                            <div class="flex justify-between items-center mb-3">
+                        <div class="pt-3 border-t border-sky-50">
+                            <div class="flex justify-between items-center mb-2">
                                 <span class="text-sm text-slate-400">已選日期</span>
-                                <span id="selectedCount" class="text-2xl font-bold text-sky-500">0</span>
+                                <span id="selectedCount" class="text-xl font-bold text-sky-500">0</span>
                             </div>
-                            <button onclick="applyBatchShifts()" id="saveBtn" disabled class="w-full bg-sky-400 text-white py-3 rounded-2xl text-xl font-bold hover:bg-sky-500 shadow-lg shadow-sky-200 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none transition-all transform active:scale-95">
+                            <button onclick="applyBatchShifts()" id="saveBtn" disabled class="w-full bg-sky-400 text-white py-2.5 rounded-xl text-lg font-bold hover:bg-sky-500 shadow-lg shadow-sky-200 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none transition-all transform active:scale-95">
                                 儲存排班
                             </button>
-                            <button onclick="clearSelection()" class="w-full mt-3 text-slate-400 py-2 text-base hover:text-sky-500 transition-colors">清除選取</button>
+                            <button onclick="clearSelection()" class="w-full mt-2 text-slate-400 py-2 text-sm hover:text-sky-500 transition-colors">清除選取</button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- 主日曆區域 -->
-            <div id="calendarContainer" class="lg:col-span-4 bg-white rounded-3xl shadow-soft border border-sky-100 overflow-hidden relative">
+            <div id="calendarContainer" class="lg:col-span-4 bg-white rounded-2xl lg:rounded-3xl shadow-soft border border-sky-100 overflow-hidden relative">
                 <!-- 星期標題 -->
-                <div class="calendar-grid !bg-sky-50 !gap-0 rounded-t-3xl border-b border-sky-100 relative z-20">
-                    <div class="py-4 text-center text-lg font-bold text-sky-600">週日</div>
-                    <div class="py-4 text-center text-lg font-bold text-sky-600">週一</div>
-                    <div class="py-4 text-center text-lg font-bold text-sky-600">週二</div>
-                    <div class="py-4 text-center text-lg font-bold text-sky-600">週三</div>
-                    <div class="py-4 text-center text-lg font-bold text-sky-600">週四</div>
-                    <div class="py-4 text-center text-lg font-bold text-sky-600">週五</div>
-                    <div class="py-4 text-center text-lg font-bold text-sky-600">週六</div>
+                <div class="calendar-grid !bg-sky-50 !gap-0 rounded-t-2xl lg:rounded-t-3xl border-b border-sky-100 relative z-20">
+                    <div class="py-2 lg:py-4 text-center text-sm lg:text-lg font-bold text-sky-600">週日</div>
+                    <div class="py-2 lg:py-4 text-center text-sm lg:text-lg font-bold text-sky-600">週一</div>
+                    <div class="py-2 lg:py-4 text-center text-sm lg:text-lg font-bold text-sky-600">週二</div>
+                    <div class="py-2 lg:py-4 text-center text-sm lg:text-lg font-bold text-sky-600">週三</div>
+                    <div class="py-2 lg:py-4 text-center text-sm lg:text-lg font-bold text-sky-600">週四</div>
+                    <div class="py-2 lg:py-4 text-center text-sm lg:text-lg font-bold text-sky-600">週五</div>
+                    <div class="py-2 lg:py-4 text-center text-sm lg:text-lg font-bold text-sky-600">週六</div>
                 </div>
                 
                 <div class="relative">
@@ -712,7 +733,7 @@
             selectedShift = null;
 
             if (!name || !profileData[name]) {
-                container.innerHTML = '<p class="text-slate-300 text-lg text-center col-span-2 py-4">請先選擇人員</p>';
+                container.innerHTML = '<p class="text-slate-300 text-base text-center col-span-3 lg:col-span-2 py-4">請先選擇人員</p>';
                 return;
             }
 
@@ -721,7 +742,7 @@
                 // 取得顏色
                 const colorStyle = getShiftColor(shift);
                 // 預設樣式：左側帶有顏色邊框
-                const baseClass = `w-full px-2 py-3 border-l-4 ${colorStyle.border.replace('border', 'border-l')} bg-white border border-slate-100 rounded-r-2xl text-base text-slate-600 hover:bg-slate-50 transition-all font-bold text-left`;
+                const baseClass = `w-full px-2 py-2.5 border-l-4 ${colorStyle.border.replace('border', 'border-l')} bg-white border border-slate-100 rounded-r-xl text-sm text-slate-600 hover:bg-slate-50 transition-all font-bold text-left`;
                 
                 btn.className = baseClass;
                 btn.textContent = shift;
@@ -734,15 +755,15 @@
                             // 重新計算該按鈕的顏色
                             const s = b.textContent;
                             const c = getShiftColor(s);
-                            b.className = `w-full px-2 py-3 border-l-4 ${c.border.replace('border', 'border-l')} bg-white border border-slate-100 rounded-r-2xl text-base text-slate-600 hover:bg-slate-50 transition-all font-bold text-left`;
+                            b.className = `w-full px-2 py-2.5 border-l-4 ${c.border.replace('border', 'border-l')} bg-white border border-slate-100 rounded-r-xl text-sm text-slate-600 hover:bg-slate-50 transition-all font-bold text-left`;
                         } else {
                             // 清除按鈕重置
-                            b.className = "w-full col-span-2 px-2 py-3 border-2 border-dashed border-red-200 text-red-400 rounded-2xl text-base hover:bg-red-50 hover:border-red-300 transition-all mt-2 font-bold";
+                            b.className = "w-full col-span-3 lg:col-span-2 px-2 py-2.5 border-2 border-dashed border-red-200 text-red-400 rounded-xl text-sm hover:bg-red-50 hover:border-red-300 transition-all mt-1 font-bold";
                         }
                     });
                     
                     // 設定選中樣式
-                    btn.className = `w-full px-2 py-3 ${colorStyle.bg} border-2 ${colorStyle.border} ${colorStyle.text} rounded-2xl text-base transition-all font-bold shadow-md text-left`;
+                    btn.className = `w-full px-2 py-2.5 ${colorStyle.bg} border-2 ${colorStyle.border} ${colorStyle.text} rounded-xl text-sm transition-all font-bold shadow-md text-left`;
                     
                     selectedShift = shift;
                     checkSaveReady();
@@ -751,17 +772,17 @@
             });
             
             const clearBtn = document.createElement('button');
-            clearBtn.className = "w-full col-span-2 px-2 py-3 border-2 border-dashed border-red-200 text-red-400 rounded-2xl text-base hover:bg-red-50 hover:border-red-300 transition-all mt-2 font-bold";
+            clearBtn.className = "w-full col-span-3 lg:col-span-2 px-2 py-2.5 border-2 border-dashed border-red-200 text-red-400 rounded-xl text-sm hover:bg-red-50 hover:border-red-300 transition-all mt-1 font-bold";
             clearBtn.textContent = "清除排班 (Delete)";
             clearBtn.onclick = () => {
                 document.querySelectorAll('#shiftList button').forEach(b => {
                     if (!b.textContent.includes("清除排班")) {
                         const s = b.textContent;
                         const c = getShiftColor(s);
-                        b.className = `w-full px-2 py-3 border-l-4 ${c.border.replace('border', 'border-l')} bg-white border border-slate-100 rounded-r-2xl text-base text-slate-600 hover:bg-slate-50 transition-all font-bold text-left`;
+                        b.className = `w-full px-2 py-2.5 border-l-4 ${c.border.replace('border', 'border-l')} bg-white border border-slate-100 rounded-r-xl text-sm text-slate-600 hover:bg-slate-50 transition-all font-bold text-left`;
                     }
                 });
-                clearBtn.className = "w-full col-span-2 px-2 py-3 border-2 border-red-500 bg-red-500 text-white rounded-2xl text-base transition-all mt-2 font-bold shadow-md";
+                clearBtn.className = "w-full col-span-3 lg:col-span-2 px-2 py-2.5 border-2 border-red-500 bg-red-500 text-white rounded-xl text-sm transition-all mt-1 font-bold shadow-md";
                 selectedShift = ""; 
                 checkSaveReady();
             };
@@ -784,14 +805,14 @@
             if (isReady) {
                 if (selectedShift === "") {
                     btn.textContent = `刪除 ${person} 的排班`; // Explicitly mention user
-                    btn.className = "w-full bg-red-400 text-white py-3 rounded-2xl text-xl font-bold hover:bg-red-500 shadow-lg shadow-red-200 transition-all transform active:scale-95";
+                    btn.className = "w-full bg-red-400 text-white py-2.5 rounded-xl text-lg font-bold hover:bg-red-500 shadow-lg shadow-red-200 transition-all transform active:scale-95";
                 } else {
                     btn.textContent = "儲存排班";
-                    btn.className = "w-full bg-sky-400 text-white py-3 rounded-2xl text-xl font-bold hover:bg-sky-500 shadow-lg shadow-sky-200 transition-all transform active:scale-95";
+                    btn.className = "w-full bg-sky-400 text-white py-2.5 rounded-xl text-lg font-bold hover:bg-sky-500 shadow-lg shadow-sky-200 transition-all transform active:scale-95";
                 }
             } else {
                 btn.textContent = "儲存排班";
-                btn.className = "w-full bg-sky-400 text-white py-3 rounded-2xl text-xl font-bold hover:bg-sky-500 shadow-lg shadow-sky-200 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none transition-all transform active:scale-95";
+                btn.className = "w-full bg-sky-400 text-white py-2.5 rounded-xl text-lg font-bold hover:bg-sky-500 shadow-lg shadow-sky-200 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none transition-all transform active:scale-95";
             }
         }
 
