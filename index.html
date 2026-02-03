@@ -16,6 +16,7 @@
         :root {
             --primary-color: #38bdf8; /* Sky 400 */
             --bg-color: #f0f9ff; /* Sky 50 */
+            --grid-line-color: #cbd5e1; /* Slate 300 - 格線顏色 */
         }
 
         body {
@@ -64,19 +65,20 @@
         .decor-mid-left { top: 50%; left: -30px; transform: translateY(-50%) rotate(-10deg); }
         .decor-btm-right { bottom: 20px; right: -20px; transform: rotate(-15deg); }
 
-        /* 月曆樣式 */
+        /* 月曆樣式 - 強化格線 */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 1px;
-            background-color: #e0f2fe;
+            gap: 1px; /* 這裡的縫隙會透出背景色，形成格線 */
+            background-color: var(--grid-line-color); /* 設定格線顏色 */
+            border: 1px solid var(--grid-line-color); /* 外框 */
             border-radius: 0 0 1rem 1rem;
             overflow: hidden;
         }
 
         .day-cell {
-            height: 80px; /* 固定高度，不再隨內容長大 */
-            overflow: hidden; /* 超出內容隱藏 */
+            height: 80px;
+            overflow: hidden;
             background-color: white;
             transition: all 0.2s;
             display: flex;
@@ -95,22 +97,20 @@
         }
 
         .date-num {
-            font-size: 0.5rem; /* 縮小 50% (原 1rem) */
-            color: #94a3b8;
+            font-size: 0.5rem;
+            color: #64748b; /* 稍微深一點的灰 */
             margin-bottom: 1px;
             font-weight: bold;
             padding-left: 2px;
         }
         
         @media (min-width: 768px) {
-            .date-num {
-                font-size: 0.6rem; /* 縮小 50% (原 1.2rem) */
-            }
+            .date-num { font-size: 0.6rem; }
         }
 
         .shift-tag {
-            font-size: 0.4rem; /* 縮小 50% (原 0.8rem) */
-            padding: 1px 2px; /* Padding 也對應縮小 */
+            font-size: 0.4rem;
+            padding: 1px 2px;
             border-radius: 4px;
             margin-top: 1px;
             display: block;
@@ -124,20 +124,20 @@
         
         @media (min-width: 768px) {
             .shift-tag {
-                font-size: 0.45rem; /* 縮小 50% (原 0.9rem) */
+                font-size: 0.45rem;
                 padding: 2px 4px;
             }
         }
 
         .remark-tag {
-            font-size: 0.35rem; /* 縮小 50% (原 0.75rem) */
+            font-size: 0.35rem;
             padding: 1px 2px;
             margin-top: auto;
             background-color: #fffbeb;
             border: 1px dashed #fcd34d;
             color: #92400e;
             border-radius: 3px;
-            white-space: nowrap; /* 空間變小，改為不換行 */
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             line-height: 1;
@@ -174,7 +174,7 @@
         <img src="kiki.jpg" class="decor-img decor-btm-right" alt="" onerror="this.style.display='none'">
     </div>
 
-    <!-- 頂部固定導覽列 (Mobile Sticky Header) -->
+    <!-- 頂部固定導覽列 -->
     <div class="fixed top-0 left-0 w-full z-40 bg-white/95 backdrop-blur shadow-sm border-b border-sky-100 transition-all duration-300 lg:static lg:bg-transparent lg:shadow-none lg:border-none lg:mb-6">
         <div class="max-w-6xl mx-auto p-3 lg:px-6">
             <div class="flex flex-col lg:flex-row items-center justify-between gap-3">
@@ -237,12 +237,11 @@
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             
             <!-- 手機版：底部固定排班工具列 / 桌面版：左側卡片 -->
-            <!-- 使用 fixed bottom-0 實現類似 App 的操作面板 -->
             <div id="editTools" class="fixed bottom-0 left-0 w-full bg-white shadow-top z-50 rounded-t-3xl transform transition-transform duration-300 translate-y-full lg:translate-y-0 lg:static lg:col-span-1 lg:block lg:shadow-soft lg:rounded-3xl lg:border lg:border-sky-100 hidden p-4 pb-8 lg:p-5">
                 
                 <div class="flex lg:flex-col gap-4 items-center lg:items-stretch">
                     
-                    <!-- 人員選擇 (Mobile: Compact / Desktop: Full) -->
+                    <!-- 人員選擇 -->
                     <div class="w-1/3 lg:w-full min-w-[120px]">
                         <label class="block text-xs font-bold text-sky-400 mb-1 pl-1 lg:block hidden">1. 選擇人員</label>
                         <div class="relative">
@@ -255,24 +254,23 @@
                         </div>
                     </div>
 
-                    <!-- 班別選擇 (Mobile: Horizontal Scroll / Desktop: Grid) -->
+                    <!-- 班別選擇 -->
                     <div class="flex-1 lg:w-full overflow-hidden">
                         <label class="block text-xs font-bold text-sky-400 mb-1 pl-1 lg:block hidden">2. 選擇班別</label>
-                        <!-- Mobile: Flex row with scroll / Desktop: Grid -->
                         <div id="shiftList" class="flex gap-2 overflow-x-auto scrollbar-hide lg:grid lg:grid-cols-2 lg:gap-2 lg:max-h-64 lg:overflow-y-auto">
                             <p class="text-slate-300 text-sm whitespace-nowrap lg:whitespace-normal py-2 px-2">請先選擇人員</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- 底部操作區 (Mobile: 整合在同一行 / Desktop: 獨立區塊) -->
+                <!-- 底部操作區 -->
                 <div class="mt-3 pt-3 border-t border-sky-50 flex items-center gap-3 lg:block">
                     <div class="hidden lg:flex justify-between items-center mb-2">
                         <span class="text-sm text-slate-400">已選日期</span>
                         <span id="selectedCountDesktop" class="text-xl font-bold text-sky-500">0</span>
                     </div>
                     
-                    <!-- 清除按鈕 (Mobile: Icon / Desktop: Full Text) -->
+                    <!-- 清除按鈕 -->
                     <button onclick="clearSelection()" class="p-3 bg-slate-100 rounded-xl text-slate-500 hover:bg-slate-200 lg:w-full lg:mt-2 lg:bg-transparent lg:text-slate-400 lg:hover:bg-transparent lg:hover:text-sky-500 lg:py-1">
                         <span class="lg:hidden"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></span>
                         <span class="hidden lg:inline text-sm">清除選取</span>
@@ -288,20 +286,21 @@
 
             <!-- 主日曆區域 -->
             <div id="calendarContainer" class="lg:col-span-4 bg-white rounded-2xl lg:rounded-3xl shadow-soft border border-sky-100 overflow-hidden relative">
-                <!-- 星期標題 -->
-                <div class="calendar-grid !bg-sky-50 !gap-0 rounded-t-2xl lg:rounded-t-3xl border-b border-sky-100 relative z-20">
-                    <div class="py-2 text-center text-sm lg:text-lg font-bold text-sky-600">日</div>
-                    <div class="py-2 text-center text-sm lg:text-lg font-bold text-sky-600">一</div>
-                    <div class="py-2 text-center text-sm lg:text-lg font-bold text-sky-600">二</div>
-                    <div class="py-2 text-center text-sm lg:text-lg font-bold text-sky-600">三</div>
-                    <div class="py-2 text-center text-sm lg:text-lg font-bold text-sky-600">四</div>
-                    <div class="py-2 text-center text-sm lg:text-lg font-bold text-sky-600">五</div>
-                    <div class="py-2 text-center text-sm lg:text-lg font-bold text-sky-600">六</div>
+                <!-- 星期標題 (這裡也加上格線風格) -->
+                <div class="grid grid-cols-7 gap-px bg-slate-300 rounded-t-2xl lg:rounded-t-3xl border-b border-slate-300 relative z-20">
+                    <div class="py-2 text-center text-sm lg:text-lg font-bold text-sky-600 bg-white">日</div>
+                    <div class="py-2 text-center text-sm lg:text-lg font-bold text-sky-600 bg-white">一</div>
+                    <div class="py-2 text-center text-sm lg:text-lg font-bold text-sky-600 bg-white">二</div>
+                    <div class="py-2 text-center text-sm lg:text-lg font-bold text-sky-600 bg-white">三</div>
+                    <div class="py-2 text-center text-sm lg:text-lg font-bold text-sky-600 bg-white">四</div>
+                    <div class="py-2 text-center text-sm lg:text-lg font-bold text-sky-600 bg-white">五</div>
+                    <div class="py-2 text-center text-sm lg:text-lg font-bold text-sky-600 bg-white">六</div>
                 </div>
                 
                 <div class="relative">
-                    <div id="calendarBody" class="calendar-grid relative z-10 bg-transparent pb-4">
-                        <div class="col-span-7 py-20 flex flex-col items-center justify-center text-slate-300 gap-4">
+                    <div id="calendarBody" class="calendar-grid relative z-10 bg-slate-300 pb-0">
+                        <!-- Content -->
+                        <div class="col-span-7 py-20 flex flex-col items-center justify-center text-slate-300 gap-4 bg-white">
                             <div class="loader"></div>
                             <span class="text-xl">讀取資料中...</span>
                         </div>
@@ -310,7 +309,7 @@
             </div>
         </div>
 
-        <!-- 彈窗區域 (保持不變) -->
+        <!-- 彈窗區域 -->
         <div id="remarkModal" class="modal fixed inset-0 bg-sky-900/30 backdrop-blur-sm z-[60] items-center justify-center p-4">
             <div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-sm transform transition-all scale-100">
                 <div class="flex justify-between items-center mb-4">
@@ -355,7 +354,7 @@
     <script>
         const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbzCBZ2i6P68KZ_LjgoVhQjcD2dMLcw1nd5pjMcxX_me-Sl1CWGnrrVYLe-AmMRbnvYY/exec';
         
-        // --- 顏色定義與邏輯 (已更新：移除紅色系，並改為順序分配) ---
+        // --- 顏色定義與邏輯 ---
         const shiftColorPalette = [
             { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-300' },
             { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-300' },
@@ -373,30 +372,22 @@
             { bg: 'bg-slate-50', text: 'text-slate-700', border: 'border-slate-300' },
         ];
 
-        let assignedColors = {}; // 記錄每個班別名稱對應的顏色
-        let colorIndex = 0;      // 目前分配到第幾個顏色
+        let assignedColors = {}; 
+        let colorIndex = 0;      
 
         function getShiftColor(name) {
             if (!name) return shiftColorPalette[0];
-            
-            // 特別處理 "休假" (保留紅色)
             if (name.includes("休假")) {
                 return { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-300' };
             }
-
-            // 如果已經分配過顏色，直接回傳舊的
             if (assignedColors[name]) {
                 return assignedColors[name];
             }
-
-            // 分配新顏色 (依序從色盤取用)
             const style = shiftColorPalette[colorIndex % shiftColorPalette.length];
             assignedColors[name] = style;
             colorIndex++;
-            
             return style;
         }
-        // -------------------
 
         let scriptUrl = localStorage.getItem('gas_script_url') || DEFAULT_URL;
         let currentMode = 'view';
@@ -554,7 +545,9 @@
                             const span = document.createElement('span');
                             const colorStyle = getShiftColor(shift);
                             span.className = `shift-tag ${colorStyle.bg} ${colorStyle.text} ${colorStyle.border}`;
-                            span.textContent = `${name} ${shift}`;
+                            
+                            // 更新顯示格式: Name:Shift
+                            span.textContent = `${name}:${shift}`;
                             shiftsContainer.appendChild(span);
                         }
                     });
