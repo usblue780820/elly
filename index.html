@@ -96,8 +96,14 @@
             box-shadow: inset 0 0 0 2px #38bdf8;
         }
 
+        /* 確保文字在圖片上方 */
+        .date-num, .shift-tag, .remark-tag {
+            position: relative;
+            z-index: 10;
+        }
+
         .date-num {
-            font-size: 0.7rem; /* 放大 10% (原 0.62rem -> 0.7rem) */
+            font-size: 0.62rem; /* 微調縮小 (原 0.65rem) */
             color: #64748b; /* 稍微深一點的灰 */
             margin-bottom: 1px;
             font-weight: bold;
@@ -105,11 +111,11 @@
         }
         
         @media (min-width: 768px) {
-            .date-num { font-size: 0.85rem; /* 放大 10% (原 0.76rem -> 0.85rem) */ }
+            .date-num { font-size: 0.76rem; /* 微調縮小 (原 0.8rem) */ }
         }
 
         .shift-tag {
-            font-size: 0.55rem; /* 放大 10% (原 0.48rem -> 0.55rem) */
+            font-size: 0.48rem; /* 微調縮小 (原 0.5rem) */
             padding: 1px 3px;
             border-radius: 4px;
             margin-top: 1px;
@@ -124,15 +130,16 @@
         
         @media (min-width: 768px) {
             .shift-tag {
-                font-size: 0.7rem; /* 放大 10% (原 0.62rem -> 0.7rem) */
+                font-size: 0.62rem; /* 微調縮小 (原 0.65rem) */
                 padding: 2px 4px;
             }
         }
 
         .remark-tag {
-            font-size: 0.5rem; /* 放大 10% (原 0.43rem -> 0.5rem) */
+            font-size: 0.43rem; /* 微調縮小 (原 0.45rem) */
             padding: 1px 2px;
-            margin-bottom: 2px; /* 增加一點下邊距與班表區隔 */
+            margin-top: auto; /* 置底關鍵 */
+            margin-bottom: 2px; 
             background-color: #fffbeb;
             border: 1px dashed #fcd34d;
             color: #92400e;
@@ -141,6 +148,21 @@
             overflow: hidden;
             text-overflow: ellipsis;
             line-height: 1.1;
+        }
+
+        /* 休假特效圖樣式 */
+        .cell-kiki-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: auto;
+            height: auto;
+            max-width: 80%;
+            max-height: 80%;
+            opacity: 0.5; /* 透明度 50% */
+            pointer-events: none;
+            z-index: 1; /* 在背景之上，文字之下 */
         }
 
         /* 隱藏捲軸但保留功能 */
@@ -587,23 +609,11 @@
                 num.textContent = d;
                 div.appendChild(num);
 
-                // 備註現在顯示在日期下方 (最上方)
-                if (remarkRow) {
-                    // d 對應的 index
-                    // 資料列結構: [Name, 1號, 2號...]
-                    // d=1 => index 1
-                    const dataColIndex = d;
-                    const remarkText = remarkRow[dataColIndex];
-                    if (remarkText && remarkText.trim() !== "") {
-                        const remarkDiv = document.createElement('div');
-                        remarkDiv.className = "remark-tag";
-                        remarkDiv.textContent = remarkText;
-                        div.appendChild(remarkDiv);
-                    }
-                }
-
                 const shiftsContainer = document.createElement('div');
                 
+                // 檢查是否雙人休假
+                let leaveCount = 0;
+
                 if (currentSchedule && currentSchedule.length > 0) {
                     const dataColIndex = d; 
                     currentSchedule.forEach((row, rowIndex) => {
@@ -611,9 +621,16 @@
                         let name = row[0]; 
                         if (name) name = name.toString().trim();
                         if (!name || name === '備註') return;
-                        if (currentMode === 'view' && currentViewFilter && name !== currentViewFilter) return;
 
                         const shift = row[dataColIndex];
+                        
+                        // 計算休假人數
+                        if (shift && shift.toString().includes('休假')) {
+                            leaveCount++;
+                        }
+
+                        if (currentMode === 'view' && currentViewFilter && name !== currentViewFilter) return;
+
                         if (shift && shift.toString().trim() !== "") {
                             const span = document.createElement('span');
                             const colorStyle = getShiftColor(shift);
@@ -632,6 +649,26 @@
                 }
                 div.appendChild(shiftsContainer);
 
+                // 備註移至最下方
+                if (remarkRow) {
+                    const remarkText = remarkRow[d];
+                    if (remarkText && remarkText.trim() !== "") {
+                        const remarkDiv = document.createElement('div');
+                        remarkDiv.className = "remark-tag";
+                        remarkDiv.textContent = remarkText;
+                        div.appendChild(remarkDiv);
+                    }
+                }
+
+                // 雙人休假特效 (插入 kiki.jpg)
+                if (leaveCount >= 2) {
+                    const kikiImg = document.createElement('img');
+                    kikiImg.src = 'kiki.jpg';
+                    kikiImg.className = 'cell-kiki-bg';
+                    kikiImg.alt = 'Kiki';
+                    div.appendChild(kikiImg);
+                }
+
                 div.onclick = () => {
                     if (currentMode === 'edit') {
                         if (selectedDates.has(d)) {
@@ -645,7 +682,6 @@
                     } else {
                         let currentRemarkText = "";
                         if (remarkRow) {
-                            // d=1 => index 1
                             currentRemarkText = remarkRow[d] || "";
                         }
                         openRemarkModal(d, currentRemarkText);
